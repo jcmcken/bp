@@ -10,6 +10,8 @@ BP is a simple CLI for populating Jinja2 templates using JSON or YAML config fil
 Usage
 -----
 
+For usage information, use the ``-h``/``--help`` option:
+
     Usage: bp [options] <template> [context_file]
     
     Options:
