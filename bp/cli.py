@@ -2,7 +2,10 @@ import os
 import sys
 import optparse
 import jinja2
-from bp.core import create_environment, read_context, parse_expressions, sys_context
+from bp.core import (
+    create_environment, read_context, parse_expressions, sys_context,
+    get_writer
+)
 
 def create_cli():
     usage = 'usage: %prog [options] <template> [context_file]'
@@ -83,7 +86,9 @@ def main():
     context.update(sys_context())
 
     if opts.print_context:
-        pass
+        write = get_writer(datatype)
+        print write(context)
+        raise SystemExit
 
     environ = create_environment(template_file, opts.template_dir)
     # create and initialize template

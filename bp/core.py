@@ -36,6 +36,23 @@ def get_reader(datatype):
         raise TypeError("invalid type '%s', no backends available" % datatype)
     return reader
 
+def get_writer(datatype):
+    if datatype == 'json':
+        lib = get_json_lib()
+        lib_name = lib.__name__
+        if not lib_name: 
+            raise ImportError('cannot find a suitable json library')
+        elif lib_name in ['json', 'simplejson']:
+            writer = lib.dumps
+        elif lib_name == 'cjson':
+            writer = lib.encode
+    elif datatype == 'yaml':
+        import yaml
+        writer = yaml.dump
+    else:
+        raise TypeError("invalid type '%s', no backends available" % datatype)
+    return writer
+
 def read_context(context_file, datatype):
     read = get_reader(datatype)
     data = read(context_file)
