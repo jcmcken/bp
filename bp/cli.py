@@ -2,7 +2,7 @@ import os
 import sys
 import optparse
 import jinja2
-from bp.core import create_environment, read_context, parse_expressions
+from bp.core import create_environment, read_context, parse_expressions, sys_context
 
 def create_cli():
     usage = 'usage: %prog [options] <template> [context_file]'
@@ -25,6 +25,10 @@ def create_cli():
     cli.add_option(
         '-y', '--yaml', action='store_true',
         help='indicates that the context file should be parsed as yaml'
+    )
+    cli.add_option(
+        '-p', '--print-context', action='store_true',
+        help='print out the current context'
     )
     return cli
 
@@ -76,6 +80,10 @@ def main():
     except SyntaxError, e:
         cli.error(e.args[0])
     context.update(extra_context)
+    context.update(sys_context())
+
+    if opts.print_context:
+        pass
 
     environ = create_environment(template_file, opts.template_dir)
     # create and initialize template

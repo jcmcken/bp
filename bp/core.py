@@ -1,5 +1,7 @@
 import os
 import jinja2
+import datetime
+import socket
 
 def create_environment(template_file, env_dirs):
     loader = jinja2.FileSystemLoader(
@@ -8,21 +10,25 @@ def create_environment(template_file, env_dirs):
     env = jinja2.Environment(loader=loader, undefined=jinja2.StrictUndefined)
     return env
 
+def get_json_lib():
+    json = None
+    for lib in ['json', 'simplejson', 'cjson']:
+        try:
+            json = __import__(lib)
+        except ImportError:
+            continue
+    return json
+
 def get_reader(datatype):
     if datatype == 'json':
-        selected_lib = None
-        for lib in ['json', 'simplejson', 'cjson']:
-            try:
-                json = __import__(lib)
-                selected_lib = lib
-            except ImportError:
-                continue
-        if not selected_lib: 
+        lib = get_json_lib()
+        lib_name = lib.__name__
+        if not lib_name: 
             raise ImportError('cannot find a suitable json library')
-        elif selected_lib in ['json', 'simplejson']:
-            reader = json.load
-        elif selected_lib == 'cjson':
-            reader = lambda x: json.decode(open(x, 'rb').read())
+        elif lib_name in ['json', 'simplejson']:
+            reader = lib.load
+        elif lib_name == 'cjson':
+            reader = lambda x: lib.decode(open(x, 'rb').read())
     elif datatype == 'yaml':
         import yaml
         reader = lambda x: yaml.load(open(x, 'rb').read())
@@ -43,5 +49,14 @@ def parse_expressions(exprs):
         except ValueError:
             raise SyntaxError('could not parse expression "%s"' % expr)
         ctx[key] = val
+    return ctx
+
+def sys_context():
+    ctx = {}
+    now = datetime.datetime.now()
+    ctx['bp.date'] = "%s/%s/%s" % (now.month, now.day, now.year)
+    ctx['bp.time'] = "%s:%s:%s" % (now.hour, now.minute, now.second)
+    ctx['bp.hostname'] = socket.gethostname()
+    ctx['bp.fqdn'] = socket.getfqdn()
     return ctx
 
