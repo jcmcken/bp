@@ -71,9 +71,9 @@ def parse_expressions(exprs):
 def sys_context():
     ctx = {}
     now = datetime.datetime.now()
-    ctx['bp.date'] = "%s/%s/%s" % (now.month, now.day, now.year)
-    ctx['bp.time'] = "%s:%s:%s" % (now.hour, now.minute, now.second)
-    ctx['bp.hostname'] = socket.gethostname()
-    ctx['bp.fqdn'] = socket.getfqdn()
+    ctx['bp_date'] = "%s/%s/%s" % (now.month, now.day, now.year)
+    ctx['bp_time'] = "%s:%s:%s" % (now.hour, now.minute, now.second)
+    ctx['bp_hostname'] = socket.gethostname()
+    ctx['bp_fqdn'] = socket.getfqdn()
     return ctx
 
