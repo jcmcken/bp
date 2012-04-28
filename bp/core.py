@@ -35,3 +35,13 @@ def read_context(context_file, datatype):
     data = read(context_file)
     return data
 
+def parse_expressions(exprs):
+    ctx = {}
+    for expr in exprs:
+        try:
+            key, val = expr.split('=', 1)
+        except ValueError:
+            raise SyntaxError('could not parse expression "%s"' % expr)
+        ctx[key] = val
+    return ctx
+

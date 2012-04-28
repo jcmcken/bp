@@ -2,7 +2,7 @@ import os
 import sys
 import optparse
 import jinja2
-from bp.core import create_environment, read_context
+from bp.core import create_environment, read_context, parse_expressions
 
 def create_cli():
     usage = 'usage: %prog [options] <template> [context_file]'
@@ -12,6 +12,10 @@ def create_cli():
     cli.add_option(
         '-d', '--template-dir', action='append', metavar='DIRECTORY', 
         help='add a directory to the templating environment'
+    )
+    cli.add_option(
+        '-e', '--expression', action='append',
+        help='inject key-value pairs into the template context'
     )
     cli.add_option(
         '-j', '--json', action='store_true',
@@ -55,6 +59,9 @@ def main():
     else:
         context_file = args[1]
         context = read_context(context_file, datatype=datatype)
+    
+    if opts.expression is None:
+        opts.expression = []
 
     if opts.output is None: 
         output_fd = sys.stdout
@@ -62,6 +69,12 @@ def main():
         output_fd = open(opts.output, 'rb')
     if not opts.template_dir:
         opts.template_dir = []
+    
+    try:
+        extra_context = parse_expressions(opts.expression)
+    except SyntaxError, e:
+        cli.error(e.args[0])
+    context.update(extra_context)
 
     environ = create_environment(template_file, opts.template_dir)
     # create and initialize template
