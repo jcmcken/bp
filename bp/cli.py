@@ -5,7 +5,7 @@ import jinja2
 from bp.core import create_environment, read_context
 
 def create_cli():
-    usage = 'usage: %prog [options] <template> <context>'
+    usage = 'usage: %prog [options] <template> [context_file]'
     cli = optparse.OptionParser(usage=usage)
     cli.add_option('-O', '--output', metavar='FILENAME',
         help="where to output the rendered template. Default is STDOUT")
@@ -35,12 +35,7 @@ def parse_datatypes(opts):
 def main():
     cli = create_cli()
     opts, args = cli.parse_args()
-
-    if len(args) < 1:
-        cli.error('requires a template file to render')
-    elif len(args) < 2:
-        cli.error('requires a context file to do the rendering')
-
+    
     # decide which datatype user selected
     datatypes = parse_datatypes(opts)
     if len(datatypes) > 1:
@@ -50,7 +45,17 @@ def main():
     else:
         datatype = datatypes[0]
 
-    # set defaults
+    if len(args) < 1:
+        cli.error('requires a template file to render')
+
+    template_file = args[0]
+
+    if len(args) < 2:
+        context = {}    
+    else:
+        context_file = args[1]
+        context = read_context(context_file, datatype=datatype)
+
     if opts.output is None: 
         output_fd = sys.stdout
     else:
@@ -58,16 +63,9 @@ def main():
     if not opts.template_dir:
         opts.template_dir = []
 
-    # pop user args
-    template_file = args.pop(0)
-    context_file = args.pop(0)
-
-
     environ = create_environment(template_file, opts.template_dir)
     # create and initialize template
     template = environ.get_template(os.path.basename(template_file))
-    # read the context file 
-    context = read_context(context_file, datatype=datatype)
 
     try:
         rendered = template.render(context)
