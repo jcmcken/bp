@@ -15,7 +15,8 @@ def create_cli():
     )
     cli.add_option(
         '-e', '--expression', action='append',
-        help='inject key-value pairs into the template context'
+        help='inject key-value pairs into the template context '
+             '(after [context_file] is parsed)'
     )
     cli.add_option(
         '-j', '--json', action='store_true',
