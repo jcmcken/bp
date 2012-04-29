@@ -26,7 +26,7 @@ def get_reader(datatype):
         if not lib_name: 
             raise ImportError('cannot find a suitable json library')
         elif lib_name in ['json', 'simplejson']:
-            reader = lib.load
+            reader = lambda x: lib.load(open(x))
         elif lib_name == 'cjson':
             reader = lambda x: lib.decode(open(x, 'rb').read())
     elif datatype == 'yaml':
