@@ -1,0 +1,3 @@
+include setup.py LICENSE README.rst
+recursive-include bin *
+recursive-include bp *
