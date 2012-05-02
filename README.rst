@@ -14,9 +14,6 @@ bp [options] <template> [context_file]
 
 Options:
   -h, --help            show this help message and exit
-  -O FILENAME, --output=FILENAME
-                        where to output the rendered template. Default is
-                        STDOUT
   -d DIRECTORY, --template-dir=DIRECTORY
                         add a directory to the templating environment
   -e EXPRESSION, --expression=EXPRESSION
