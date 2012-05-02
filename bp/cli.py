@@ -10,8 +10,6 @@ from bp.core import (
 def create_cli():
     usage = 'usage: %prog [options] <template> [context_file]'
     cli = optparse.OptionParser(usage=usage)
-    cli.add_option('-O', '--output', metavar='FILENAME',
-        help="where to output the rendered template. Default is STDOUT")
     cli.add_option(
         '-d', '--template-dir', action='append', metavar='DIRECTORY', 
         help='add a directory to the templating environment'
@@ -71,10 +69,6 @@ def main():
     if opts.expression is None:
         opts.expression = []
 
-    if opts.output is None: 
-        output_fd = sys.stdout
-    else:
-        output_fd = open(opts.output, 'rb')
     if not opts.template_dir:
         opts.template_dir = []
     
@@ -99,5 +93,5 @@ def main():
     except jinja2.exceptions.UndefinedError, e:
         cli.error('undefined context variable; ' + e.args[0])
 
-    output_fd.write(rendered + '\n')
+    sys.stdout.write(rendered + '\n')
 
