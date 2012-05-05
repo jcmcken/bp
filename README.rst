@@ -7,20 +7,90 @@ Intro
 
 BP is a simple CLI for populating Jinja2 templates using JSON or YAML config files for context. BP also accepts context settings passed from the command line.
 
-Usage
------
+Tour
+----
 
-bp [options] <template> [context_file]
+Basic usage:
 
-Options:
-  -h, --help            show this help message and exit
-  -d DIRECTORY, --template-dir=DIRECTORY
-                        add a directory to the templating environment
-  -e EXPRESSION, --expression=EXPRESSION
-                        inject key-value pairs into the template context
-                        (after [context_file] is parsed)
-  -j, --json            indicates that the context file should be parsed as
-                        json (default)
-  -y, --yaml            indicates that the context file should be parsed as
-                        yaml
-  -p, --print-context   print out the current context
+    bp <template_file> [context_file]
+
+For example, suppose you have the following template called ``index.html``:
+
+    <html>
+     <head>
+       <title>StartUp - {{ section|default('Home') }}</title>
+     </head>
+     <body>Welcome!</body>
+    </html>
+
+This template can (optionally) take a context variable called ``section``. If ``section`` is not supplied, it defaults to ``Home``. 
+
+A demonstration:
+
+    [jcmcken@localhost ~]$ bp index.html 
+    <html>
+    <head>
+        <title>StartUp - Home</title>
+    </head>
+    <body>Welcome!</body>
+    </html>
+
+Passing in a custom ``section`` from the command line:
+
+    [jcmcken@localhost ~]$ bp index.html -e section=Contact
+    <html>
+    <head>
+        <title>StartUp - Contact</title>
+    </head>
+    <body>Welcome!</body>
+    </html>
+
+Passing in the context from a JSON file:
+
+    [jcmcken@localhost ~]$ cat page.json
+    {
+      "section": "Contact"
+    }
+    [jcmcken@localhost ~]$ bp index.html page.json
+    <html>
+    <head>
+        <title>StartUp - Contact</title>
+    </head>
+    <body>Welcome!</body>
+    </html>
+
+Note that the root-level data structure in the JSON file is a hash (also called a dictionary, if you're a Python person). This is a hard requirement of the underlying templating engine. You're passing a namespace to the template -- in other words, data items are retrieved by their names. The internal structure of the hash can be arbitrarily complex, just so long as your template is expecting that structure.
+
+If you prefer something a bit easier to read, you can use YAML files rather than JSON. To do this, just pass the ``-y``/``--yaml`` option flag along with the other arguments. (Remember, YAML is a superset of JSON, so passing ``-y`` will let you use either JSON or YAML).
+
+Passing in the context from a YAML file:
+
+    [jcmcken@localhost ~]$ cat page.yaml
+    ---
+    section: Contact
+    [jcmcken@localhost ~]$ bp index.html page.yaml --yaml
+    <html>
+    <head>
+        <title>StartUp - Contact</title>
+    </head>
+    <body>Welcome!</body>
+    </html>
+
+Since ``bp`` utilizes the Jinja2 templating engine, you can also use template inheritance. To make this easier ``bp`` provides an option for adding directories to the templating environment.
+
+For example, suppose you have a template called ``customized.template`` which inherits from templates spread across multiple directories. Just include all the directories using the ``-d`` option flag:
+
+    [jcmcken@localhost ~]$ bp customized.template -d templates/base/ -d templates/add-ons/
+
+Without using the ``-d`` option, you'll likely get a ``TemplateNotFound`` exception for referencing a template that's not in your templating environment.
+
+Built-In Context
+----------------
+
+For convenience, ``bp`` also includes some built-in context variables. These will automatically be injected into any templates ``bp`` renders.
+
+* ``bp_hostname``: The short hostname of the current host
+* ``bp_fqdn``: The fully-qualified domain name of the current host
+* ``bp_time``: The current local time in ``HH:MM:SS`` format
+* ``bp_date``: The current local date in ``MM/DD/YYYY`` format
+ 
