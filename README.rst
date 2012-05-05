@@ -16,6 +16,8 @@ Basic usage:
 
 For example, suppose you have the following template called ``index.html``:
 
+.. raw::
+
     <html>
      <head>
        <title>StartUp - {{ section|default('Home') }}</title>
@@ -27,6 +29,8 @@ This template can (optionally) take a context variable called ``section``. If ``
 
 A demonstration:
 
+.. raw::
+
     [jcmcken@localhost ~]$ bp index.html 
     <html>
     <head>
@@ -37,6 +41,8 @@ A demonstration:
 
 Passing in a custom ``section`` from the command line:
 
+.. raw::
+
     [jcmcken@localhost ~]$ bp index.html -e section=Contact
     <html>
     <head>
@@ -46,6 +52,8 @@ Passing in a custom ``section`` from the command line:
     </html>
 
 Passing in the context from a JSON file:
+
+.. raw::
 
     [jcmcken@localhost ~]$ cat page.json
     {
@@ -64,6 +72,8 @@ Note that the root-level data structure in the JSON file is a hash (also called 
 If you prefer something a bit easier to read, you can use YAML files rather than JSON. To do this, just pass the ``-y``/``--yaml`` option flag along with the other arguments. (Remember, YAML is a superset of JSON, so passing ``-y`` will let you use either JSON or YAML).
 
 Passing in the context from a YAML file:
+
+.. raw::
 
     [jcmcken@localhost ~]$ cat page.yaml
     ---
