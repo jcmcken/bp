@@ -12,11 +12,13 @@ Tour
 
 Basic usage:
 
+::
+
     bp <template_file> [context_file]
 
 For example, suppose you have the following template called ``index.html``:
 
-.. raw::
+::
 
     <html>
      <head>
@@ -29,7 +31,7 @@ This template can (optionally) take a context variable called ``section``. If ``
 
 A demonstration:
 
-.. raw::
+::
 
     [jcmcken@localhost ~]$ bp index.html 
     <html>
@@ -41,7 +43,7 @@ A demonstration:
 
 Passing in a custom ``section`` from the command line:
 
-.. raw::
+::
 
     [jcmcken@localhost ~]$ bp index.html -e section=Contact
     <html>
@@ -53,7 +55,7 @@ Passing in a custom ``section`` from the command line:
 
 Passing in the context from a JSON file:
 
-.. raw::
+::
 
     [jcmcken@localhost ~]$ cat page.json
     {
@@ -73,7 +75,7 @@ If you prefer something a bit easier to read, you can use YAML files rather than
 
 Passing in the context from a YAML file:
 
-.. raw::
+::
 
     [jcmcken@localhost ~]$ cat page.yaml
     ---
@@ -89,6 +91,8 @@ Passing in the context from a YAML file:
 Since ``bp`` utilizes the Jinja2 templating engine, you can also use template inheritance. To make this easier ``bp`` provides an option for adding directories to the templating environment.
 
 For example, suppose you have a template called ``customized.template`` which inherits from templates spread across multiple directories. Just include all the directories using the ``-d`` option flag:
+
+::
 
     [jcmcken@localhost ~]$ bp customized.template -d templates/base/ -d templates/add-ons/
 
