@@ -69,6 +69,30 @@ Passing in the context from a JSON file:
     <body>Welcome!</body>
     </html>
 
+Passing in the context from the contents of a separate file:
+
+::
+
+    [jcmcken@localhost ~]$ cat contact_section.txt
+    Contact
+    [jcmcken@localhost ~]$ bp index.html -f section=contact_section.txt
+    <html>
+    <head>
+        <title>StartUp - Contact</title>
+    </head>
+    <body>Welcome!</body>
+    </html>
+
+Obviously these examples are pretty contrived, but you can see how each of them
+might be useful. If you have "pivot" data that is very simple, but changes depending
+on some condition, you could use the ``-e``/``--expr`` option or pass in the appropriate
+JSON or YAML config file. On the other hand, if you have dense content (paragraphs of text,
+for example), you might prefer to keep that content in separate text files and just read
+out of those files.
+
+More on Contexts
+----------------
+
 Note that the root-level data structure in the JSON file is a hash (also called a dictionary, if you're a Python person). This is a hard requirement of the underlying templating engine. You're passing a namespace to the template -- in other words, data items are retrieved by their names. The internal structure of the hash can be arbitrarily complex, just so long as your template is expecting that structure.
 
 If you prefer something a bit easier to read, you can use YAML files rather than JSON. To do this, just pass the ``-y``/``--yaml`` option flag along with the other arguments. (Remember, YAML is a superset of JSON, so passing ``-y`` will let you use either JSON or YAML).
