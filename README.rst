@@ -142,6 +142,7 @@ of some kind, but figured it would be easier just to use simple shell scripts.
 So, you need to generate a series of static web pages? Just write a script.
 
 ::
+
     #!/bin/bash
 
     DEPLOY="/var/www/html"
