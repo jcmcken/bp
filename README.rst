@@ -131,4 +131,25 @@ For convenience, ``bp`` also includes some built-in context variables. These wil
 * ``bp_fqdn``: The fully-qualified domain name of the current host
 * ``bp_time``: The current local time in ``HH:MM:SS`` format
 * ``bp_date``: The current local date in ``MM/DD/YYYY`` format
+
+Glueing your Blueprints Together
+--------------------------------
+
+Because it seemed to be more effort than it was worth, ``bp`` has no mechanism other than
+the command line for rendering templates. I tossed around the idea of using a config file
+of some kind, but figured it would be easier just to use simple shell scripts.
+
+So, you need to generate a series of static web pages? Just write a script.
+
+::
+    #!/bin/bash
+
+    DEPLOY="/var/www/html"
+
+    bp index.html -f intro=content/index/intro.txt >> $DEPLOY/index.html
+    bp contact.html contacts.json >> $DEPLOY/contacts.html
+    bp about.html -f founder_txt=content/about/founder.txt \
+                  -f employees=content/about/employees.txt >> $DEPLOY/about.html
+
+
  
