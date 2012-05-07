@@ -3,7 +3,7 @@ import sys
 import optparse
 import jinja2
 from bp.core import (
-    create_environment, read_context, parse_expressions, sys_context,
+    create_environment, read_context, context_from_expressions, sys_context,
     get_writer
 )
 
@@ -73,7 +73,7 @@ def main():
         opts.template_dir = []
     
     try:
-        extra_context = parse_expressions(opts.expression)
+        extra_context = context_from_expressions(opts.expressions)
     except SyntaxError, e:
         cli.error(e.args[0])
     context.update(extra_context)

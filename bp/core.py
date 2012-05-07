@@ -58,13 +58,25 @@ def read_context(context_file, datatype):
     data = read(context_file)
     return data
 
-def parse_expressions(exprs):
+def parse_expression(expr):
+    try:
+        key, val = expr.split('=', 1)
+    except ValueError:
+        raise SyntaxError('could not parse expression "%s"' % expr)
+    return key, val
+
+def context_from_files(exprs):
     ctx = {}
     for expr in exprs:
-        try:
-            key, val = expr.split('=', 1)
-        except ValueError:
-            raise SyntaxError('could not parse expression "%s"' % expr)
+        key, val = parse_expression(expr)
+        val = open(val).read()
+        ctx[key] = val
+    return ctx
+
+def context_from_expressions(exprs):
+    ctx = {}
+    for expr in exprs:
+        key, val = parse_expression(expr)
         ctx[key] = val
     return ctx
 
