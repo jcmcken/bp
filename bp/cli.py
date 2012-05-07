@@ -4,7 +4,7 @@ import optparse
 import jinja2
 from bp.core import (
     create_environment, read_context, context_from_expressions, sys_context,
-    get_writer
+    get_writer, context_from_files
 )
 
 def create_cli():
@@ -15,21 +15,27 @@ def create_cli():
         help='add a directory to the templating environment'
     )
     cli.add_option(
-        '-e', '--expression', action='append',
-        help='inject key-value pairs into the template context '
-             '(after [context_file] is parsed)'
+        '-e', '--expr', metavar='KEY=VAL', action='append', dest='expressions',
+        help='inject key-value pairs of the form KEY=VAL into the template context, '
+             'where the value of KEY in the template will be set to VAL'
+    )
+    cli.add_option(
+        '-f', '--file-expr', metavar='KEY=VAL', action='append', dest='file_expressions',
+        help='similar to -e/--expr, except that VAL is treated as a file. The '
+             'contents of VAL will be read and set as the value of KEY in the final '
+             'template'
     )
     cli.add_option(
         '-j', '--json', action='store_true',
-        help='indicates that the context file should be parsed as json (default)'
+        help='indicates that the context file should be parsed as JSON (default)'
     )
     cli.add_option(
         '-y', '--yaml', action='store_true',
-        help='indicates that the context file should be parsed as yaml'
+        help='indicates that the context file should be parsed as YAML'
     )
     cli.add_option(
         '-p', '--print-context', action='store_true',
-        help='print out the current context'
+        help='print out the context that will be applied to <template> and exit'
     )
     return cli
 
@@ -66,8 +72,11 @@ def main():
         context_file = args[1]
         context = read_context(context_file, datatype=datatype)
     
-    if opts.expression is None:
-        opts.expression = []
+    if opts.expressions is None:
+        opts.expressions = []
+
+    if opts.file_expressions is None:
+        opts.file_expressions = []
 
     if not opts.template_dir:
         opts.template_dir = []
@@ -77,6 +86,14 @@ def main():
     except SyntaxError, e:
         cli.error(e.args[0])
     context.update(extra_context)
+
+    try:
+        extra_context = context_from_files(opts.file_expressions)
+    except (IOError, SyntaxError), e:
+        cli.error(e.args[0])
+    context.update(extra_context)
+
+    # now add built-in context
     context.update(sys_context())
 
     if opts.print_context:
