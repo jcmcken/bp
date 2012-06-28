@@ -82,9 +82,7 @@ def context_from_expressions(exprs):
 
 def sys_context():
     ctx = {}
-    now = datetime.datetime.now()
-    ctx['bp_date'] = "%s/%s/%s" % (now.month, now.day, now.year)
-    ctx['bp_time'] = "%s:%s:%s" % (now.hour, now.minute, now.second)
+    ctx['bp_datetime'] = datetime.datetime.now()
     ctx['bp_hostname'] = socket.gethostname()
     ctx['bp_fqdn'] = socket.getfqdn()
     return ctx

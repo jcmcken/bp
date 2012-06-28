@@ -129,8 +129,9 @@ For convenience, ``bp`` also includes some built-in context variables. These wil
 
 * ``bp_hostname``: The short hostname of the current host
 * ``bp_fqdn``: The fully-qualified domain name of the current host
-* ``bp_time``: The current local time in ``HH:MM:SS`` format
-* ``bp_date``: The current local date in ``MM/DD/YYYY`` format
+* ``bp_datetime``: The ``datetime`` object created with ``datetime.datetime.now()``. 
+  (You can either call ``{{ bp_datetime }}`` directly to print the full timestamp, or
+  access the ``datetime`` attributes, e.g. ``{{ bp_datetime.year }}``)
 
 Glueing your Blueprints Together
 --------------------------------
