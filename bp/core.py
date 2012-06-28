@@ -1,4 +1,5 @@
 import os
+import pwd
 import jinja2
 import datetime
 import socket
@@ -85,5 +86,7 @@ def sys_context():
     ctx['bp_datetime'] = datetime.datetime.now()
     ctx['bp_hostname'] = socket.gethostname()
     ctx['bp_fqdn'] = socket.getfqdn()
+    ctx['bp_user'] = os.getlogin()
+    ctx['bp_euser'] = pwd.getpwuid(os.getuid())[0]
     return ctx
 
