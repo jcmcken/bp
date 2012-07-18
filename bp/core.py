@@ -41,7 +41,7 @@ def get_writer(datatype):
         if not lib: 
             raise ImportError('cannot find a suitable json library')
         else:
-            writer = lib.dumps
+            writer = lambda x: lib.dumps(x, sort_keys=False, indent=4)
     elif datatype == 'yaml':
         import yaml
         writer = yaml.dump
