@@ -13,9 +13,10 @@ def create_environment(template_file, env_dirs):
 
 def get_json_lib():
     json = None
-    for lib in ['json', 'simplejson', 'cjson']:
+    for lib in ['json', 'simplejson']:
         try:
             json = __import__(lib)
+            break
         except ImportError:
             continue
     return json
@@ -23,13 +24,10 @@ def get_json_lib():
 def get_reader(datatype):
     if datatype == 'json':
         lib = get_json_lib()
-        lib_name = lib.__name__
-        if not lib_name: 
+        if not lib: 
             raise ImportError('cannot find a suitable json library')
-        elif lib_name in ['json', 'simplejson']:
+        else:
             reader = lambda x: lib.load(open(x))
-        elif lib_name == 'cjson':
-            reader = lambda x: lib.decode(open(x, 'rb').read())
     elif datatype == 'yaml':
         import yaml
         reader = lambda x: yaml.load(open(x, 'rb').read())
@@ -40,13 +38,10 @@ def get_reader(datatype):
 def get_writer(datatype):
     if datatype == 'json':
         lib = get_json_lib()
-        lib_name = lib.__name__
-        if not lib_name: 
+        if not lib: 
             raise ImportError('cannot find a suitable json library')
-        elif lib_name in ['json', 'simplejson']:
+        else:
             writer = lib.dumps
-        elif lib_name == 'cjson':
-            writer = lib.encode
     elif datatype == 'yaml':
         import yaml
         writer = yaml.dump
