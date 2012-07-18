@@ -76,6 +76,10 @@ def context_from_expressions(exprs):
         ctx[key] = val
     return ctx
 
+def prepare_context_for_writing(ctx):
+    ctx['bp_datetime'] = ctx['bp_datetime'].isoformat()
+    return ctx
+
 def sys_context():
     ctx = {}
     ctx['bp_datetime'] = datetime.datetime.now()

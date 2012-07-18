@@ -129,7 +129,11 @@ For convenience, ``bp`` also includes some built-in context variables. These wil
 
 * ``bp_datetime``: The ``datetime`` object created with ``datetime.datetime.now()``. 
   (You can either call ``{{ bp_datetime }}`` directly to print the full timestamp, or
-  access the ``datetime`` attributes, e.g. ``{{ bp_datetime.year }}``)
+  access the ``datetime`` attributes, e.g. ``{{ bp_datetime.year }}``).
+
+  Note: When using the ``-p/--print-context`` option, ``bp_datetime`` will be printed as
+  an ISO formatted timestamp (since ``datetime.datetime`` objects are not JSON-serializable)
+
 * ``bp_euser``: The current effective user.
 * ``bp_fqdn``: The fully-qualified domain name of the current host
 * ``bp_hostname``: The short hostname of the current host

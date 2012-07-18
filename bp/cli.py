@@ -4,7 +4,7 @@ import optparse
 import jinja2
 from bp.core import (
     create_environment, read_context, context_from_expressions, sys_context,
-    get_writer, context_from_files
+    get_writer, context_from_files, prepare_context_for_writing
 )
 
 def create_cli():
@@ -97,6 +97,7 @@ def main():
     context.update(sys_context())
 
     if opts.print_context:
+        context = prepare_context_for_writing(context)
         write = get_writer(datatype)
         print write(context)
         raise SystemExit
