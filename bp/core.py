@@ -76,6 +76,16 @@ def context_from_expressions(exprs):
         ctx[key] = val
     return ctx
 
+def context_from_opts(opt, datatype):
+    if '=' in opt:
+        ctx = {}
+        key, filename = parse_expression(opt)
+        data = read_context(filename, datatype)
+        ctx[key] = data
+    else:
+        ctx = read_context(opt, datatype)
+    return ctx
+
 def prepare_context_for_writing(ctx):
     ctx['bp_datetime'] = ctx['bp_datetime'].isoformat()
     return ctx
