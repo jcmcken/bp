@@ -128,8 +128,8 @@ This has two useful benefits:
         }
       }
 
-   This means that you can (if need be) decouple your data into separate files
-   rather than keeping very large, aggregated files.
+  This means that you can (if need be) decouple your data into separate files
+  rather than keeping very large, aggregated files.
 
 More on Contexts
 ----------------
