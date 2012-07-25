@@ -14,7 +14,7 @@ Basic usage:
 
 ::
 
-    bp <template_file> [context_file]
+    bp <template_file> [options]
 
 For example, suppose you have the following template called ``index.html``:
 
@@ -61,7 +61,7 @@ Passing in the context from a JSON file:
     {
       "section": "Contact"
     }
-    [jcmcken@localhost ~]$ bp index.html page.json
+    [jcmcken@localhost ~]$ bp index.html -c page.json
     <html>
     <head>
         <title>StartUp - Contact</title>
@@ -90,10 +90,51 @@ JSON or YAML config file. On the other hand, if you have dense content (paragrap
 for example), you might prefer to keep that content in separate text files and just read
 out of those files.
 
+Advanced Usage
+--------------
+
+While not really "advanced" per se, there's an additional feature of the ``-c/--context``
+option which provides an even finer level control over contexts.
+
+You can pass an expression of the form ``<key>=<filename>`` to ``-c``, where ``<key>``
+is the name of a variable to inject into the template context and ``<filename>`` is
+a serialized data structure (JSON or YAML) just like before.
+
+Using this syntax, the template context will contain a variable ``<key>`` set equal
+to the data structure loaded from ``<filename>``.
+
+This has two useful benefits:
+
+* Context files that are not hashes can be named and turned into hashes. 
+  For example, if you have a JSON file with a list of data items, you can
+  assign a name to that list using ``-c`` without having to rewrite the JSON
+  file as a hash map.
+
+* You can use it to deconflict data structures with common keys. For example,
+  if you have data about employees, ``salaries.json`` and ``ranks.json``, but 
+  the data in each file is keyed off of employees names, e.g. 
+  ``{ "Bob": 65000 }`` and ``{ "Bob": "Engineer" }`` (respectively), then
+  you can simply pass ``-c salaries=salaries.json`` and ``-c ranks=ranks.json``
+  to create the following merged context:
+
+  ::
+
+      { 
+        "salaries": {
+          "Bob": 65000
+        },
+        "ranks": {
+          "Bob": "Engineer"
+        }
+      }
+
+   This means that you can (if need be) decouple your data into separate files
+   rather than keeping very large, aggregated files.
+
 More on Contexts
 ----------------
 
-Note that the root-level data structure in the JSON file is a hash (also called a dictionary, if you're a Python person). This is a hard requirement of the underlying templating engine. You're passing a namespace to the template -- in other words, data items are retrieved by their names. The internal structure of the hash can be arbitrarily complex, just so long as your template is expecting that structure.
+Note that the root-level data structure in the JSON file is always a hash (also called a dictionary, if you're a Python person). This is a hard requirement of the underlying templating engine. You're passing a namespace to the template -- in other words, data items are retrieved by their names. The internal structure of the hash can be arbitrarily complex, just so long as your template is expecting that structure.
 
 If you prefer something a bit easier to read, you can use YAML files rather than JSON. To do this, just pass the ``-y``/``--yaml`` option flag along with the other arguments. (Remember, YAML is a superset of JSON, so passing ``-y`` will let you use either JSON or YAML).
 
@@ -104,7 +145,7 @@ Passing in the context from a YAML file:
     [jcmcken@localhost ~]$ cat page.yaml
     ---
     section: Contact
-    [jcmcken@localhost ~]$ bp index.html page.yaml --yaml
+    [jcmcken@localhost ~]$ bp index.html -c page.yaml --yaml
     <html>
     <head>
         <title>StartUp - Contact</title>
@@ -155,7 +196,7 @@ So, you need to generate a series of static web pages? Just write a script.
     DEPLOY="/var/www/html"
 
     bp index.html -f intro=content/index/intro.txt >> $DEPLOY/index.html
-    bp contact.html contacts.json >> $DEPLOY/contacts.html
+    bp contact.html -c contacts.json >> $DEPLOY/contacts.html
     bp about.html -f founder_txt=content/about/founder.txt \
                   -f employees=content/about/employees.txt >> $DEPLOY/about.html
 
