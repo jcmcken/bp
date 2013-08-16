@@ -3,13 +3,7 @@ import pwd
 import jinja2
 import datetime
 import socket
-
-def create_environment(template_file, env_dirs):
-    loader = jinja2.FileSystemLoader(
-        [ os.path.dirname(template_file) ] + env_dirs
-    )
-    env = jinja2.Environment(loader=loader, undefined=jinja2.StrictUndefined)
-    return env
+from copy import deepcopy
 
 def get_json_lib():
     json = None
@@ -86,16 +80,49 @@ def context_from_opts(opt, datatype):
         ctx = read_context(opt, datatype)
     return ctx
 
-def prepare_context_for_writing(ctx):
-    ctx['bp_datetime'] = ctx['bp_datetime'].isoformat()
-    return ctx
+class Blueprint(object):
+    def __init__(self, template_file, template_dirs=None, context=None):
+        self.template_file = template_file
+        self.template_dirs = template_dirs or []
+        self.context = context or {}
 
-def sys_context():
-    ctx = {}
-    ctx['bp_datetime'] = datetime.datetime.now()
-    ctx['bp_hostname'] = socket.gethostname()
-    ctx['bp_fqdn'] = socket.getfqdn()
-    ctx['bp_user'] = os.getlogin()
-    ctx['bp_euser'] = pwd.getpwuid(os.getuid())[0]
-    return ctx
+    def _create_environ(self):
+        loader = jinja2.FileSystemLoader(
+            [ os.path.dirname(self.template_file) ] + self.template_dirs
+        )
+        env = jinja2.Environment(loader=loader, undefined=jinja2.StrictUndefined)
+        return env
 
+    def _create_template(self):
+        env = self._create_environ()
+        return env.get_template(os.path.basename(self.template_file))
+
+    def _sys_context(self):
+        return {
+            'bp_datetime': datetime.datetime.now(),
+            'bp_hostname': socket.gethostname(),
+            'bp_fqdn': socket.getfqdn(),
+            'bp_user': os.getlogin(),
+            'bp_euser': pwd.getpwuid(os.getuid())[0],
+        }
+
+    def _preprocess_ctx_for_writing(self, ctx):
+        ctx['bp_datetime'] = ctx['bp_datetime'].isoformat()
+        return ctx
+
+    def serialize_context(self, format='json'):
+        ctx = self._build_context()
+        self._preprocess_ctx_for_writing(ctx)
+        write = get_writer(format)
+        return write(ctx)
+
+    def _build_context(self, context=None):
+        ctx = deepcopy(context or {})
+        ctx.update(self.context)
+        ctx.update(self._sys_context())
+        return ctx
+
+    def render(self, *args, **kwargs):
+        full_ctx = self._build_context(dict(*args, **kwargs))
+        template = self._create_template()
+        return template.render(full_ctx)

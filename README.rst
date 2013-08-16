@@ -5,7 +5,7 @@ BP (Blueprints)
 Intro
 -----
 
-BP is a simple CLI for populating Jinja2 templates using JSON or YAML config files for context. BP also accepts context settings passed from the command line.
+BP is a simple CLI and library for populating Jinja2 templates using JSON or YAML config files for context. BP also accepts context settings passed from the command line.
 
 Tour
 ----
@@ -183,11 +183,10 @@ For convenience, ``bp`` also includes some built-in context variables. These wil
 Glueing your Blueprints Together
 --------------------------------
 
-Because it seemed to be more effort than it was worth, ``bp`` has no mechanism other than
-the command line for rendering templates. I tossed around the idea of using a config file
-of some kind, but figured it would be easier just to use simple shell scripts.
+Shell Scripts
+#############
 
-So, you need to generate a series of static web pages? Just write a script.
+The simplest way to glue together your templates is to write a shell script. For example:
 
 ::
 
@@ -200,5 +199,21 @@ So, you need to generate a series of static web pages? Just write a script.
     bp about.html -f founder_txt=content/about/founder.txt \
                   -f employees=content/about/employees.txt >> $DEPLOY/about.html
 
+Using the API
+#############
 
- 
+``bp`` now has a very simple API you can use to generate templates programmatically in Python. This comes in the form of the ``bp.Blueprint`` class. Like the CLI, you pass in a template file and (optionally) a set of directories to add to the template environment. Unlike the CLI, the ``Blueprint`` class just takes a dictionary for its context (there's no expression or file parsing currently).
+
+Here's a simple example:
+
+::
+
+    from bp import Blueprint
+    
+    bp = Blueprint(
+        template_file='template.html', 
+        template_dirs = ['extra_templates/'],
+        context={"foo":"bar"},
+    )
+    
+    print bp.render()

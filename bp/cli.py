@@ -3,9 +3,8 @@ import sys
 import optparse
 import jinja2
 from bp.core import (
-    create_environment, read_context, context_from_expressions, sys_context,
-    get_writer, context_from_files, prepare_context_for_writing,
-    context_from_opts
+    read_context, context_from_expressions, get_writer, context_from_files, 
+    context_from_opts, Blueprint
 )
 
 def create_cli():
@@ -103,9 +102,6 @@ def main():
         cli.error(e.args[0])
     ctx_data.append(extra_context)
 
-    # now add built-in context
-    ctx_data.append(sys_context())
-
     # validate no duplicate keys
     keys = []
     for data in ctx_data:
@@ -119,18 +115,18 @@ def main():
     context = {}
     [ context.update(i) for i in ctx_data ]
 
+    blueprint = Blueprint(
+        template_file=template_file, 
+        template_dirs=opts.template_dir,
+        context=context,
+    )
+
     if opts.print_context:
-        context = prepare_context_for_writing(context)
-        write = get_writer(datatype)
-        print write(context)
+        print blueprint.serialize_context(format=datatype)
         raise SystemExit
 
-    environ = create_environment(template_file, opts.template_dir)
-    # create and initialize template
-    template = environ.get_template(os.path.basename(template_file))
-
     try:
-        rendered = template.render(context)
+        rendered = blueprint.render()
     except jinja2.exceptions.UndefinedError, e:
         cli.error('undefined context variable; ' + e.args[0])
 
