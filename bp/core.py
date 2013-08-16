@@ -44,7 +44,7 @@ def get_writer(datatype):
             writer = lambda x: lib.dumps(x, sort_keys=False, indent=4)
     elif datatype == 'yaml':
         import yaml
-        writer = yaml.dump
+        writer = lambda x: yaml.dump(x, default_flow_style=False)
     else:
         raise TypeError("invalid type '%s', no backends available" % datatype)
     return writer
