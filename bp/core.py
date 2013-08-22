@@ -98,11 +98,15 @@ class Blueprint(object):
         return env.get_template(os.path.basename(self.template_file))
 
     def _sys_context(self):
+        try:
+          bp_user = os.getlogin()
+        except OSError:
+          bp_user = None
         return {
             'bp_datetime': datetime.datetime.now(),
             'bp_hostname': socket.gethostname(),
             'bp_fqdn': socket.getfqdn(),
-            'bp_user': os.getlogin(),
+            'bp_user': bp_user,
             'bp_euser': pwd.getpwuid(os.getuid())[0],
         }
 
