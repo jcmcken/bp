@@ -1,9 +1,8 @@
 from setuptools import setup
-from bp import __version__
 
 setup(
     name='bp',
-    version=__version__,
+    version=open('VERSION').read().strip(),
     description='A command-line interface for populating Jinja2 templates',
     long_description='Populate Jinja2 templates from plaintext JSON, YAML, or'
                      ' TXT files.',
