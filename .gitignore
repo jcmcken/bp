@@ -1,3 +1,7 @@
 *.swp
 *.pyc
 tmp/
+.coverage
+*.egg-info
+dist
+build
