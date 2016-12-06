@@ -22,6 +22,11 @@ def create_cli():
         help='add a directory to the templating environment'
     )
     cli.add_option(
+        '-E', '--extension', action='append',
+        help='add a Jinja2 extension to the rendering environment (can specify '
+             'multiple times). This must be an import path string.',
+    )
+    cli.add_option(
         '-e', '--expr', metavar='KEY=VAL', action='append', dest='expressions',
         help='inject key-value pairs of the form KEY=VAL into the template context, '
              'where the value of KEY in the template will be set to VAL'
@@ -119,6 +124,7 @@ def main():
         template_file=template_file, 
         template_dirs=opts.template_dir,
         context=context,
+        extensions=opts.extension,
     )
 
     if opts.print_context:

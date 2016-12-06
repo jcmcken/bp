@@ -81,17 +81,28 @@ def context_from_opts(opt, datatype):
     return ctx
 
 class Blueprint(object):
-    def __init__(self, template_file, template_dirs=None, context=None):
+    def __init__(self, template_file, template_dirs=None, context=None, **kwargs):
         self.template_file = template_file
         self.template_dirs = template_dirs or []
         self.context = context or {}
+        self.jinja_environment_kwargs = kwargs
 
     def _create_environ(self):
         loader = jinja2.FileSystemLoader(
             [ os.path.dirname(self.template_file) ] + self.template_dirs
         )
-        env = jinja2.Environment(loader=loader, undefined=jinja2.StrictUndefined)
-        return env
+        kwargs = {}
+        kwargs.update(self.jinja_environment_kwargs)
+        kwargs['loader'] = loader
+        kwargs['undefined'] = jinja2.StrictUndefined
+
+        filters = kwargs.pop('filters', {})
+        globals = kwargs.pop('globals', {})
+
+        environ = jinja2.Environment(**kwargs)
+        environ.filters.update(filters)
+        environ.globals.update(globals)
+        return environ
 
     def _create_template(self):
         env = self._create_environ()
