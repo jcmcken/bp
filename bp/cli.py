@@ -49,6 +49,11 @@ def create_cli():
         '-p', '--print-context', action='store_true',
         help='print out the context that will be applied to <template> and exit'
     )
+    cli.add_option(
+        '-n', '--no-sys-context', action='store_false', dest='sys_context',
+        help="don't inject built-in `bp' context (e.g. `bp_fqdn') into the template"
+             " context"
+    )
     return cli
 
 CTXTYPES = ['json', 'yaml']
@@ -125,6 +130,7 @@ def main():
         template_dirs=opts.template_dir,
         context=context,
         extensions=opts.extension,
+        sys_context=opts.sys_context,
     )
 
     if opts.print_context:
