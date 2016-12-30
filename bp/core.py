@@ -81,11 +81,13 @@ def context_from_opts(opt, datatype):
     return ctx
 
 class Blueprint(object):
-    def __init__(self, template_file, template_dirs=None, context=None, **kwargs):
+    def __init__(self, template_file, template_dirs=None, context=None, 
+        sys_context=True, **kwargs):
         self.template_file = template_file
         self.template_dirs = template_dirs or []
         self.context = context or {}
         self.jinja_environment_kwargs = kwargs
+        self.sys_context = sys_context
 
     def _create_environ(self):
         loader = jinja2.FileSystemLoader(
@@ -134,7 +136,8 @@ class Blueprint(object):
     def _build_context(self, context=None):
         ctx = deepcopy(context or {})
         ctx.update(self.context)
-        ctx.update(self._sys_context())
+        if self.sys_context:
+            ctx.update(self._sys_context())
         return ctx
 
     def render(self, *args, **kwargs):

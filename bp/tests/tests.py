@@ -23,3 +23,11 @@ class BlueprintTestCase(unittest.TestCase):
     def test_jinja_globals(self):
         blueprint = Blueprint(fixture_path('simple.txt'), globals={'foo': 'bar'})
         blueprint.render()
+
+    def test_sys_context(self):
+        blueprint = Blueprint(fixture_path('builtin_context.txt'))
+        self.assertTrue(bool(blueprint.render().strip()))
+
+    def test_disable_sys_context(self):
+        blueprint = Blueprint(fixture_path('builtin_context.txt'), sys_context=False)
+        self.assertRaises(jinja2.UndefinedError, blueprint.render)
