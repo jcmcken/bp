@@ -39,4 +39,3 @@ class UtilTestCase(unittest.TestCase):
           read_context(fixture_path('simple.json'), datatype='json'),
           {"foo": "bar"}
         )
-
