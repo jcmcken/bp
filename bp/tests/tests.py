@@ -2,6 +2,7 @@ import unittest
 import os
 from bp import Blueprint
 import jinja2
+from bp.core import read_context
 
 def fixture_path(name):
     return os.path.join(os.path.dirname(__file__), 'fixtures', name) 
@@ -31,3 +32,11 @@ class BlueprintTestCase(unittest.TestCase):
     def test_disable_sys_context(self):
         blueprint = Blueprint(fixture_path('builtin_context.txt'), sys_context=False)
         self.assertRaises(jinja2.UndefinedError, blueprint.render)
+
+class UtilTestCase(unittest.TestCase):
+    def test_json_reader(self):
+        self.assertEquals(
+          read_context(fixture_path('simple.json'), datatype='json'),
+          {"foo": "bar"}
+        )
+

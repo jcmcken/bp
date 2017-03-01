@@ -1,4 +1,5 @@
 import os
+import sys
 import pwd
 import jinja2
 import datetime
@@ -20,11 +21,10 @@ def get_reader(datatype):
         lib = get_json_lib()
         if not lib: 
             raise ImportError('cannot find a suitable json library')
-        else:
-            reader = lambda x: lib.load(open(x))
+        reader = lib.load
     elif datatype == 'yaml':
         import yaml
-        reader = lambda x: yaml.load(open(x, 'rb').read())
+        reader = lambda fd: yaml.load(fd.read())
     else:
         raise TypeError("invalid type '%s', no backends available" % datatype)
     return reader
@@ -45,8 +45,13 @@ def get_writer(datatype):
 
 def read_context(context_file, datatype):
     read = get_reader(datatype)
-    data = read(context_file)
-    return data
+
+    if context_file == '-':
+        fd = sys.stdin
+    else:
+        fd = open(context_file)
+
+    return read(fd)
 
 def parse_expression(expr):
     try:
