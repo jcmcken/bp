@@ -22,7 +22,7 @@ def create_cli():
         help='add a directory to the templating environment'
     )
     cli.add_option(
-        '-E', '--extension', action='append',
+        '-E', '--extension', action='append', default=[],
         help='add a Jinja2 extension to the rendering environment (can specify '
              'multiple times). This must be an import path string.',
     )
