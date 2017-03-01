@@ -55,6 +55,14 @@ def parse_expression(expr):
         raise SyntaxError('could not parse expression "%s"' % expr)
     return key, val
 
+def context_from_env(exprs):
+    ctx = {}
+    for expr in exprs:
+        key, val = parse_expression(expr)
+        val = os.environ[val]
+        ctx[key] = val
+    return ctx
+
 def context_from_files(exprs):
     ctx = {}
     for expr in exprs:

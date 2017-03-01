@@ -4,14 +4,14 @@ import optparse
 import jinja2
 from bp.core import (
     read_context, context_from_expressions, get_writer, context_from_files, 
-    context_from_opts, Blueprint
+    context_from_opts, context_from_env, Blueprint
 )
 
 def create_cli():
     usage = 'usage: %prog <template> [options]'
     cli = optparse.OptionParser(usage=usage)
     cli.add_option(
-        '-c', '--context', action='append',
+        '-c', '--context', action='append', default=[],
         help='specify either a context file or an expression of the form'
              ' KEY=FILE, where KEY is the name of a variable to inject into'
              ' the template context and FILE is a path to a context file.'
@@ -19,6 +19,7 @@ def create_cli():
     )
     cli.add_option(
         '-d', '--template-dir', action='append', metavar='DIRECTORY', 
+        default=[],
         help='add a directory to the templating environment'
     )
     cli.add_option(
@@ -28,14 +29,23 @@ def create_cli():
     )
     cli.add_option(
         '-e', '--expr', metavar='KEY=VAL', action='append', dest='expressions',
+        default=[],
         help='inject key-value pairs of the form KEY=VAL into the template context, '
              'where the value of KEY in the template will be set to VAL'
     )
     cli.add_option(
         '-f', '--file-expr', metavar='KEY=VAL', action='append', dest='file_expressions',
+        default=[],
         help='similar to -e/--expr, except that VAL is treated as a file. The '
              'contents of VAL will be read and set as the value of KEY in the final '
              'template'
+    )
+    cli.add_option(
+        '-I', '--env-expr', metavar='KEY=VAL', action='append',
+        dest='env_expressions', default=[],
+        help='similar to -e/--expr, except that VAL is treated as the name of '
+             'an environment variable. The value of the env var VAL will be'
+             ' set as the value of KEY in the final template'
     )
     cli.add_option(
         '-j', '--json', action='store_true',
@@ -83,18 +93,6 @@ def main():
 
     template_file = args[0]
 
-    if opts.context is None:
-        opts.context = [] 
-
-    if opts.expressions is None:
-        opts.expressions = []
-
-    if opts.file_expressions is None:
-        opts.file_expressions = []
-
-    if not opts.template_dir:
-        opts.template_dir = []
-
     ctx_data = []
 
     for expr in opts.context:
@@ -110,6 +108,12 @@ def main():
         extra_context = context_from_files(opts.file_expressions)
     except (IOError, SyntaxError), e:
         cli.error(e.args[0])
+    ctx_data.append(extra_context)
+
+    try:
+        extra_context = context_from_env(opts.env_expressions)
+    except KeyError, e:
+        cli.error('environment variable "%s" is not set' % e.args[0])
     ctx_data.append(extra_context)
 
     # validate no duplicate keys
