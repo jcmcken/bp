@@ -3,12 +3,12 @@ import sys
 import optparse
 import jinja2
 from bp.core import (
-    read_context, context_from_expressions, get_writer, context_from_files, 
+    read_context, context_from_expressions, get_writer, context_from_files,
     context_from_opts, context_from_env, Blueprint
 )
 
 def create_cli():
-    usage = 'usage: %prog <template> [options]'
+    usage = 'usage: %prog <template> [<template> ...] [options]'
     cli = optparse.OptionParser(usage=usage)
     cli.add_option(
         '-c', '--context', action='append', default=[],
@@ -18,7 +18,7 @@ def create_cli():
              ' The data structure in FILE will be set as the value of KEY.'
     )
     cli.add_option(
-        '-d', '--template-dir', action='append', metavar='DIRECTORY', 
+        '-d', '--template-dir', action='append', metavar='DIRECTORY',
         default=[],
         help='add a directory to the templating environment'
     )
@@ -64,6 +64,11 @@ def create_cli():
         help="don't inject built-in `bp' context (e.g. `bp_fqdn') into the template"
              " context"
     )
+    cli.add_option(
+        '-R', '--recursive', action='store_true', dest='recursive',
+        help="if any of <template> arguments are directories, recursively"
+             " traverse those directories to find templates to render"
+    )
     return cli
 
 CTXTYPES = ['json', 'yaml']
@@ -75,10 +80,28 @@ def parse_datatypes(opts):
         if val is True: datatypes.append(i)
     return datatypes
 
+def find_files(directory):
+    files = []
+    for dirpath, dirnames, filenames in os.walk(directory):
+        for filename in filenames:
+             files.append(os.path.join(dirpath, filename))
+        for dirname in dirnames:
+            files.extend(find_files(os.path.join(dirpath, dirname)))
+    return files
+
+def resolve_files(candidates):
+    files = []
+    for candidate in candidates:
+        if os.path.isfile(candidate):
+            files.append(candidate)
+        elif os.path.isdir(candidate):
+            files.extend(find_files(candidate))
+    return files
+
 def main():
     cli = create_cli()
     opts, args = cli.parse_args()
-    
+
     # decide which datatype user selected
     datatypes = parse_datatypes(opts)
     if len(datatypes) > 1:
@@ -88,16 +111,22 @@ def main():
     else:
         datatype = datatypes[0]
 
-    if len(args) != 1:
-        cli.error('requires a template file to render')
+    if len(args) < 1:
+        cli.error('requires one or more template files to render')
 
-    template_file = args[0]
+    for candidate in args:
+        if not (os.path.isfile(candidate) or os.path.isdir(candidate)):
+            cli.error('no such file or directory: %s' % candidate)
+        if os.path.isdir(candidate) and not opts.recursive:
+            cli.error('pass the -R/--recursive option to traverse directories')
+
+    template_files = resolve_files(args)
 
     ctx_data = []
 
     for expr in opts.context:
         ctx_data.append(context_from_opts(expr, datatype))
-    
+
     try:
         extra_context = context_from_expressions(opts.expressions)
     except SyntaxError, e:
@@ -129,8 +158,8 @@ def main():
     context = {}
     [ context.update(i) for i in ctx_data ]
 
-    blueprint = Blueprint(
-        template_file=template_file, 
+    blueprints = Blueprint.load(
+        template_files=template_files,
         template_dirs=opts.template_dir,
         context=context,
         extensions=opts.extension,
@@ -138,13 +167,15 @@ def main():
     )
 
     if opts.print_context:
-        print blueprint.serialize_context(format=datatype)
+        print blueprints[0].serialize_context(format=datatype)
         raise SystemExit
 
+    output = ''
+
     try:
-        rendered = blueprint.render()
+        for b in blueprints:
+            output += b.render() + '\n'
     except jinja2.exceptions.UndefinedError, e:
         cli.error('undefined context variable; ' + e.args[0])
 
-    sys.stdout.write(rendered + '\n')
-
+    sys.stdout.write(output)
