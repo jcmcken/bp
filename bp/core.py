@@ -100,7 +100,14 @@ class Blueprint(object):
         self.template_dirs = template_dirs or []
         self.context = context or {}
         self.jinja_environment_kwargs = kwargs
-        self.sys_context = sys_context
+        if sys_context is None:
+            self.sys_context = True
+        else:
+            self.sys_context = sys_context
+
+    @classmethod
+    def load(cls, template_files, *args, **kwargs):
+        return [ cls(t, *args, **kwargs) for t in template_files ]
 
     def _create_environ(self):
         loader = jinja2.FileSystemLoader(
