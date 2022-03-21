@@ -129,26 +129,26 @@ def main():
 
     try:
         extra_context = context_from_expressions(opts.expressions)
-    except SyntaxError, e:
+    except SyntaxError as e:
         cli.error(e.args[0])
     ctx_data.append(extra_context)
 
     try:
         extra_context = context_from_files(opts.file_expressions)
-    except (IOError, SyntaxError), e:
+    except (IOError, SyntaxError) as e:
         cli.error(e.args[0])
     ctx_data.append(extra_context)
 
     try:
         extra_context = context_from_env(opts.env_expressions)
-    except KeyError, e:
+    except KeyError as e:
         cli.error('environment variable "%s" is not set' % e.args[0])
     ctx_data.append(extra_context)
 
     # validate no duplicate keys
     keys = []
     for data in ctx_data:
-        for key in data.keys():
+        for key in list(data.keys()):
             if key in keys:
                 cli.error("duplicate key '%s' in template context" % key)
             else:
@@ -167,7 +167,7 @@ def main():
     )
 
     if opts.print_context:
-        print blueprints[0].serialize_context(format=datatype)
+        print(blueprints[0].serialize_context(format=datatype))
         raise SystemExit
 
     output = ''
@@ -175,7 +175,7 @@ def main():
     try:
         for b in blueprints:
             output += b.render() + '\n'
-    except jinja2.exceptions.UndefinedError, e:
+    except jinja2.exceptions.UndefinedError as e:
         cli.error('undefined context variable; ' + e.args[0])
 
     sys.stdout.write(output)

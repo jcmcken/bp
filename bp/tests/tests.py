@@ -35,7 +35,7 @@ class BlueprintTestCase(unittest.TestCase):
 
 class UtilTestCase(unittest.TestCase):
     def test_json_reader(self):
-        self.assertEquals(
+        self.assertEqual(
           read_context(fixture_path('simple.json'), datatype='json'),
           {"foo": "bar"}
         )

@@ -5,4 +5,4 @@ from bp.cli import main
 try:
     main()
 except KeyboardInterrupt:
-    raise SystemExit, 'exiting on interrupt'
+    raise SystemExit('exiting on interrupt')
